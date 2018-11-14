@@ -56,7 +56,7 @@ install:
     - cmd: conda install --quiet --yes jinja2 conda-build
 
     # Patch VS 2008 for 64-bit support.
-    - cmd: conda install --no-update-deps --quiet --yes conda-forge::vs2008_express_vc_python_patch
+    - cmd: conda install --no-deps --quiet --yes conda-forge::vs2008_express_vc_python_patch
     - cmd: call setup_x64
 
     # Show info about conda install.
