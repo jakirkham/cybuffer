@@ -38,6 +38,7 @@ install:
 script:
   - coverage erase
   - coverage run --append --source . setup.py --version
+  - coverage run --append --source . setup.py build_ext --inplace
   - coverage run --append --source . setup.py test
   - coverage report -m
 

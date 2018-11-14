@@ -75,5 +75,6 @@ test_script:
     # command to run tests, e.g. python setup.py test
     - cmd: coverage erase
     - cmd: coverage run --append --source . setup.py --version
+    - cmd: coverage run --append --source . setup.py build_ext --inplace
     - cmd: coverage run --append --source . setup.py test
     - cmd: coverage report -m
