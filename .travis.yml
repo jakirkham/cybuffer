@@ -5,6 +5,10 @@ sudo: false
 
 language: generic
 
+branches:
+  only:
+    - master
+
 env:
   - PYVER="3.6"
   - PYVER="3.5"
