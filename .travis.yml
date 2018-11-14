@@ -8,7 +8,6 @@ language: generic
 env:
   - PYVER="3.6"
   - PYVER="3.5"
-  - PYVER="3.4"
   - PYVER="2.7"
 
 install:
