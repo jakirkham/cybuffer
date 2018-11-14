@@ -17,8 +17,8 @@ env:
 
 install:
   # Install Miniconda.
-  - curl -L https://repo.continuum.io/miniconda/Miniconda3-4.1.11-Linux-x86_64.sh > miniconda.sh
-  - openssl md5 miniconda.sh | grep 874dbb0d3c7ec665adf7231bbb575ab2
+  - curl -L https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh > miniconda.sh
+  - openssl md5 miniconda.sh | grep e1045ee415162f944b6aebfe560b8fee
   - bash miniconda.sh -b -p ~/miniconda
   - rm miniconda.sh
   - source ~/miniconda/bin/activate root
