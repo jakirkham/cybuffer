@@ -41,11 +41,9 @@ with open("HISTORY.rst") as history_file:
 
 setup_requirements = [
     "cython>=0.25.2",
-    
 ]
 
 install_requirements = [
-    
     # TODO: put package install requirements here
 ]
 
