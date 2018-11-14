@@ -1,21 +1,17 @@
+branches:
+  only:
+    - master
+
 environment:
 
   matrix:
-    - TARGET_ARCH: x86
-      CONDA_PY: 2.7
-      CONDA_INSTALL_LOCN: C:\\Miniconda
-
     - TARGET_ARCH: x64
       CONDA_PY: 2.7
       CONDA_INSTALL_LOCN: C:\\Miniconda-x64
 
-    - TARGET_ARCH: x86
-      CONDA_PY: 3.6
-      CONDA_INSTALL_LOCN: C:\\Miniconda36
-
     - TARGET_ARCH: x64
-      CONDA_PY: 3.6
-      CONDA_INSTALL_LOCN: C:\\Miniconda36-x64
+      CONDA_PY: 3.7
+      CONDA_INSTALL_LOCN: C:\\Miniconda37-x64
 
 
 # We always use a 64-bit machine, but can build x86 distributions
@@ -60,7 +56,7 @@ install:
     - cmd: conda install --quiet --yes jinja2 conda-build
 
     # Patch VS 2008 for 64-bit support.
-    - cmd: conda install -c conda-forge --no-update-deps --quiet --yes vs2008_express_vc_python_patch
+    - cmd: conda install --no-deps --quiet --yes conda-forge::vs2008_express_vc_python_patch
     - cmd: call setup_x64
 
     # Show info about conda install.
@@ -79,5 +75,6 @@ test_script:
     # command to run tests, e.g. python setup.py test
     - cmd: coverage erase
     - cmd: coverage run --append --source . setup.py --version
+    - cmd: coverage run --append --source . setup.py build_ext --inplace
     - cmd: coverage run --append --source . setup.py test
     - cmd: coverage report -m

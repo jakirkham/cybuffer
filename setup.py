@@ -40,12 +40,10 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 setup_requirements = [
-    "cython>=0.25.2",
-    
+    "cython>=0.27.3",
 ]
 
 install_requirements = [
-    
     # TODO: put package install requirements here
 ]
 
@@ -150,9 +148,9 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
     tests_require=test_requirements
 )
