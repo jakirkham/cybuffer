@@ -21,7 +21,8 @@ install:
   - openssl md5 miniconda.sh | grep e1045ee415162f944b6aebfe560b8fee
   - bash miniconda.sh -b -p ~/miniconda
   - rm miniconda.sh
-  - source ~/miniconda/bin/activate root
+  - source ~/miniconda/etc/profile.d/conda.sh
+  - conda activate
   - conda config --set show_channel_urls true
   - conda update -y -n root --all
   - conda install -y -n root conda-build
@@ -32,7 +33,7 @@ install:
   - conda remove -y --force -n testenv openssl
   - conda env update -n testenv --file environment_ci.yml
   - conda list --full-name -n testenv openssl || conda install -y -n testenv openssl
-  - source activate testenv
+  - conda activate testenv
 
 # command to run tests, e.g. python setup.py test
 script:
@@ -44,12 +45,12 @@ script:
 
 # Report coverage
 after_success:
-  - source activate root
+  - conda activate
   - conda create -y -n dplenv python="3.5";
   - conda remove -y --force -n dplenv openssl
   - conda env update -n dplenv --file environment_dpl.yml
   - conda list --full-name -n dplenv openssl || conda install -y -n dplenv openssl
-  - source activate dplenv
+  - conda activate dplenv
   - coveralls
 
 # Disable email notifications.
