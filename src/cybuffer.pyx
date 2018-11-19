@@ -1,3 +1,4 @@
+include "config.pxi"
 
 cimport cybuffer
 
