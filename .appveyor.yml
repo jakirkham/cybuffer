@@ -66,6 +66,9 @@ install:
     - cmd: conda create -y -n testenv
     - cmd: conda activate testenv
     - cmd: echo "python %PYVER%.*" >> %CONDA_PREFIX%\\conda-meta\\pinned
+    - cmd: echo "%CONDA_PREFIX%\\conda-meta"
+    - cmd: dir "%CONDA_PREFIX%\\conda-meta"
+    - cmd: type "%CONDA_PREFIX%\\conda-meta\\pinned"
     - cmd: conda env update -n testenv --file environment_ci.yml
 
 # Skip .NET project specific build phase.
