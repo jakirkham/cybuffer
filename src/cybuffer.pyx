@@ -3,6 +3,9 @@ include "config.pxi"
 cimport cybuffer
 
 cimport cython
+cimport cython.view
+
+from cython.view cimport memoryview as cvmemoryview
 
 cimport cpython.buffer
 cimport cpython.bytes
@@ -202,6 +205,22 @@ cdef class cybuffer(object):
 
     def __len__(self):
         return self._shape[0]
+
+
+    def __getitem__(self, key):
+        cdef object r
+        cdef cvmemoryview mv = cvmemoryview(self, PyBUF_FULL_RO)
+
+        r = mv[key]
+        if isinstance(r, cvmemoryview):
+            r = cybuffer(r)
+
+        return r
+
+
+    def __setitem__(self, key, value):
+        cdef cvmemoryview mv = cvmemoryview(self, PyBUF_FULL_RO)
+        mv[key] = value
 
 
     cpdef bytes tobytes(self):
