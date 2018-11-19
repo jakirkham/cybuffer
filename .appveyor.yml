@@ -4,16 +4,13 @@ branches:
 
 environment:
 
-  matrix:
-    - TARGET_ARCH: x64
-      CONDA_PY: 3.7
-      CONDA_INSTALL_LOCN: C:\\Miniconda37-x64
-      PYVER: 2.7
+  TARGET_ARCH: x64
+  CONDA_PY: 3.7
+  CONDA_INSTALL_LOCN: C:\\Miniconda37-x64
 
-    - TARGET_ARCH: x64
-      CONDA_PY: 3.7
-      CONDA_INSTALL_LOCN: C:\\Miniconda37-x64
-      PYVER: 3.7
+  matrix:
+    - PYVER: 2.7
+    - PYVER: 3.7
 
 
 # We always use a 64-bit machine, but can build x86 distributions
