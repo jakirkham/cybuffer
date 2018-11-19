@@ -4,8 +4,8 @@ channels:
   - conda-forge
 
 dependencies:
-  - pip==18.1
-  - wheel==0.32.2
-  - coverage==4.5.2
-  - pytest==3.10.1
-  - cython==0.29
+  - pip==18.0
+  - wheel==0.32.0
+  - coverage==4.5.1
+  - pytest==3.8.1
+  - cython==0.28.5
