@@ -64,9 +64,10 @@ install:
     - cmd: conda config --get
 
     # Create the test environment.
-    - cmd: conda create -y -n testenv python="%CONDA_PY%"
-    - cmd: conda env update -n testenv --file environment_ci.yml
+    - cmd: conda create -y -n testenv
     - cmd: conda activate testenv
+    - cmd: echo "python %CONDA_PY%.*" >> "%CONDA_PREFIX%\\conda-meta\\pinned"
+    - cmd: conda env update -n testenv --file environment_ci.yml
 
 # Skip .NET project specific build phase.
 build: off

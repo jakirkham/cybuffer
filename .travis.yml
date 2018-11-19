@@ -29,9 +29,10 @@ install:
   - conda clean -tipsy
 
   # Create the test environment.
-  - conda create -y -n testenv python="${PYVER}"
-  - conda env update -n testenv --file environment_ci.yml
+  - conda create -y -n testenv
   - conda activate testenv
+  - echo "python ${PYVER}.*" >> "${CONDA_PREFIX}/conda-meta/pinned"
+  - conda env update -n testenv --file environment_ci.yml
 
 # command to run tests, e.g. python setup.py test
 script:
