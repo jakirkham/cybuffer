@@ -65,7 +65,7 @@ install:
     # Create the test environment.
     - cmd: conda create -y -n testenv
     - cmd: conda activate testenv
-    - cmd: echo python %PYVER%.* >> %CONDA_PREFIX%\\conda-meta\\pinned
+    - cmd: echo python %PYVER%.*>> %CONDA_PREFIX%\\conda-meta\\pinned
     - cmd: echo "%CONDA_PREFIX%\\conda-meta"
     - cmd: dir "%CONDA_PREFIX%\\conda-meta"
     - cmd: type "%CONDA_PREFIX%\\conda-meta\\pinned"
