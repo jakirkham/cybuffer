@@ -4,14 +4,13 @@ branches:
 
 environment:
 
-  matrix:
-    - TARGET_ARCH: x64
-      CONDA_PY: 2.7
-      CONDA_INSTALL_LOCN: C:\\Miniconda-x64
+  TARGET_ARCH: x64
+  CONDA_PY: 3.7
+  CONDA_INSTALL_LOCN: C:\\Miniconda37-x64
 
-    - TARGET_ARCH: x64
-      CONDA_PY: 3.7
-      CONDA_INSTALL_LOCN: C:\\Miniconda37-x64
+  matrix:
+    - PYVER: 2.7
+    - PYVER: 3.7
 
 
 # We always use a 64-bit machine, but can build x86 distributions
@@ -64,9 +63,10 @@ install:
     - cmd: conda config --get
 
     # Create the test environment.
-    - cmd: conda create -y -n testenv python="%CONDA_PY%"
+    - cmd: conda create -y -n testenv
+    - cmd: conda activate testenv
+    - cmd: echo python %PYVER%.*>> %CONDA_PREFIX%\\conda-meta\\pinned
     - cmd: conda env update -n testenv --file environment_ci.yml
-    - cmd: activate testenv
 
 # Skip .NET project specific build phase.
 build: off
