@@ -48,6 +48,7 @@ install_requirements = [
 ]
 
 test_requirements = [
+    "numpy",
     "pytest",
 ]
 
@@ -62,6 +63,11 @@ if not (({"develop", "test"} & set(sys.argv)) or
     any([v.startswith("install") for v in sys.argv])):
     setup_requirements = []
 else:
+    with open("src/config.pxi", "w") as f:
+        f.writelines([
+            "DEF PY2K = " + str(sys.version_info.major == 2) + "\n",
+            "DEF PY3K = " + str(sys.version_info.major == 3) + "\n"
+        ])
     with open("src/version.pxi", "w") as f:
         f.writelines([
             "__version__ = " + "\"" + str(version) + "\""
