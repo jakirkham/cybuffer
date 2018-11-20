@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 
 import array
+import binascii
 import contextlib
 import mmap
 import sys
@@ -48,6 +49,10 @@ def validate_against_memoryview(v, b, m, suboffsets=tuple()):
 
     # Test methods
     assert b.tobytes() == m.tobytes()
+    if sys.version_info.major > 2:
+        assert b.hex() == m.hex()
+    else:
+        assert b.hex() == binascii.hexlify(m)
 
 
 @pytest.mark.parametrize("v", [
@@ -216,3 +221,7 @@ def test_nd_numpy_arrays(s, o):
     # Test methods
     assert b.tobytes() == a.tobytes()
     assert b.tolist() == a.tolist()
+    if sys.version_info.major > 2:
+        assert b.hex() == a.tobytes().hex()
+    else:
+        assert b.hex() == binascii.hexlify(a.tobytes())

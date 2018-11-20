@@ -25,6 +25,9 @@ from cpython.buffer cimport (
 
 from array import array
 
+IF PY2K:
+    import binascii
+
 include "version.pxi"
 
 
@@ -251,6 +254,16 @@ cdef class cybuffer(object):
     def __setitem__(self, key, value):
         cdef cvmemoryview mv = cvmemoryview(self, PyBUF_FULL_RO)
         mv[key] = value
+
+
+    cpdef str hex(self):
+        cdef str s
+        if PY2K:
+            s = binascii.hexlify(self.tobytes())
+        else:
+            s = self.tobytes().hex()
+
+        return s
 
 
     cpdef bytes tobytes(self):

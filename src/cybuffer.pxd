@@ -13,5 +13,6 @@ cdef class cybuffer(object):
     cdef readonly bint f_contiguous
     cdef readonly bint contiguous
 
+    cpdef str hex(self)
     cpdef bytes tobytes(self)
     cpdef list tolist(self)
