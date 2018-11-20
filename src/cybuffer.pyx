@@ -24,7 +24,7 @@ from cpython.buffer cimport (
 )
 
 from array import array
-from struct import unpack as struct_unpack
+from struct import Struct
 
 IF PY2K:
     import binascii
@@ -80,7 +80,7 @@ cdef list pointer_to_nested_list(int n,
                                  Py_ssize_t* shape,
                                  Py_ssize_t* strides,
                                  Py_ssize_t* suboffsets,
-                                 bytes fmt,
+                                 object unpack,
                                  Py_ssize_t itemsize,
                                  const char* d):
     cdef list r
@@ -99,7 +99,7 @@ cdef list pointer_to_nested_list(int n,
             suboffsets += 1
         for i in range(l):
             r_i = pointer_to_nested_list(
-                n, shape, strides, suboffsets, fmt, itemsize,
+                n, shape, strides, suboffsets, unpack, itemsize,
                 d if so < 0 else (<const char**>d)[0] + so
             )
             PyList_SET_ITEM_INC(r, i, r_i)
@@ -107,7 +107,7 @@ cdef list pointer_to_nested_list(int n,
     else:
         for i in range(l):
             r_i = (d if so < 0 else (<const char**>d)[0] + so)[:itemsize]
-            r_i = struct_unpack(fmt, r_i)[0]
+            r_i = unpack(r_i)[0]
             PyList_SET_ITEM_INC(r, i, r_i)
             d += s
 
@@ -302,7 +302,8 @@ cdef class cybuffer(object):
     cpdef list tolist(self):
         return pointer_to_nested_list(
             self._buf.ndim, self._shape, self._strides, self._buf.suboffsets,
-            self._format, self.itemsize, <const char*>self._buf.buf
+            Struct(self._format).unpack, self.itemsize,
+            <const char*>self._buf.buf
         )
 
 
