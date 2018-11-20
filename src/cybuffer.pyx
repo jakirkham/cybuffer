@@ -76,27 +76,38 @@ cdef tuple pointer_to_tuple(int n, Py_ssize_t* p):
 @cython.initializedcheck(False)
 @cython.nonecheck(False)
 @cython.wraparound(False)
-cdef list pointer_to_nested_list(int n, Py_ssize_t* shape, Py_ssize_t* strides,
-                                 bytes fmt, Py_ssize_t itemsize,
+cdef list pointer_to_nested_list(int n,
+                                 Py_ssize_t* shape,
+                                 Py_ssize_t* strides,
+                                 Py_ssize_t* suboffsets,
+                                 bytes fmt,
+                                 Py_ssize_t itemsize,
                                  const char* d):
     cdef list r
     cdef object r_i
-    cdef Py_ssize_t i, l, s
+    cdef Py_ssize_t i, l, s, so
 
     l = shape[0]
     s = strides[0]
+    so = -1 if suboffsets is NULL else suboffsets[0]
     r = cpython.list.PyList_New(l)
     if n > 1:
         n -= 1
         shape += 1
         strides += 1
+        if suboffsets is not NULL:
+            suboffsets += 1
         for i in range(l):
-            r_i = pointer_to_nested_list(n, shape, strides, fmt, itemsize, d)
+            r_i = pointer_to_nested_list(
+                n, shape, strides, suboffsets, fmt, itemsize,
+                d if so < 0 else (<const char**>d)[0] + so
+            )
             PyList_SET_ITEM_INC(r, i, r_i)
             d += s
     else:
         for i in range(l):
-            r_i = struct_unpack(fmt, d[:itemsize])[0]
+            r_i = (d if so < 0 else (<const char**>d)[0] + so)[:itemsize]
+            r_i = struct_unpack(fmt, r_i)[0]
             PyList_SET_ITEM_INC(r, i, r_i)
             d += s
 
@@ -290,7 +301,7 @@ cdef class cybuffer(object):
 
     cpdef list tolist(self):
         return pointer_to_nested_list(
-            self._buf.ndim, self._shape, self._strides,
+            self._buf.ndim, self._shape, self._strides, self._buf.suboffsets,
             self._format, self.itemsize, <const char*>self._buf.buf
         )
 
