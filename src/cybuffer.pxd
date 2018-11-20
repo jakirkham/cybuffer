@@ -14,3 +14,4 @@ cdef class cybuffer(object):
     cdef readonly bint contiguous
 
     cpdef bytes tobytes(self)
+    cpdef list tolist(self)

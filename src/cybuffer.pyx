@@ -9,6 +9,7 @@ from cython.view cimport memoryview as cvmemoryview
 
 cimport cpython.buffer
 cimport cpython.bytes
+cimport cpython.list
 cimport cpython.mem
 cimport cpython.oldbuffer
 cimport cpython.tuple
@@ -39,6 +40,8 @@ cdef extern from *:
     #define UCS2_TC "H"
     #define UCS4_TC "I"
 
+    #define PyList_SET_ITEM_INC(l, i, o)  \
+            Py_INCREF(o); PyList_SET_ITEM(l, i, o)
     #define PyTuple_SET_ITEM_INC(l, i, o)  \
             Py_INCREF(o); PyTuple_SET_ITEM(l, i, o)
     """
@@ -47,6 +50,7 @@ cdef extern from *:
     char* UCS2_TC
     char* UCS4_TC
 
+    void PyList_SET_ITEM_INC(object, Py_ssize_t, object)
     void PyTuple_SET_ITEM_INC(object, Py_ssize_t, object)
 
 
@@ -61,6 +65,31 @@ cdef tuple pointer_to_tuple(int n, Py_ssize_t* p):
         PyTuple_SET_ITEM_INC(result, i, p_i)
 
     return result
+
+
+@cython.boundscheck(False)
+@cython.infer_types(True)
+@cython.initializedcheck(False)
+@cython.nonecheck(False)
+@cython.wraparound(False)
+cdef list cvmemoryview_to_list(cvmemoryview mv):
+    cdef list r
+    cdef cvmemoryview mv_i
+    cdef object r_i
+    cdef Py_ssize_t i
+
+    r = cpython.list.PyList_New(mv.view.shape[0])
+    if mv.view.ndim > 1:
+        for i in range(mv.view.shape[0]):
+            mv_i = mv[i]
+            r_i = cvmemoryview_to_list(mv_i)
+            PyList_SET_ITEM_INC(r, i, r_i)
+    else:
+        for i in range(mv.view.shape[0]):
+            r_i = mv[i]
+            PyList_SET_ITEM_INC(r, i, r_i)
+
+    return r
 
 
 cdef class cybuffer(object):
@@ -233,6 +262,16 @@ cdef class cybuffer(object):
         cpython.buffer.PyBuffer_ToContiguous(
             s, &self._buf, self._buf.len, b'C'
         )
+
+        return r
+
+
+    cpdef list tolist(self):
+        cdef list r
+        cdef cvmemoryview mv
+
+        mv = cvmemoryview(self, PyBUF_FULL_RO)
+        r = cvmemoryview_to_list(mv)
 
         return r
 
