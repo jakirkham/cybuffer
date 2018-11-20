@@ -80,19 +80,21 @@ cdef list pointer_to_list(int n, Py_ssize_t* shape, Py_ssize_t* strides,
                           bytes fmt, Py_ssize_t itemsize, const char* d):
     cdef list r
     cdef object r_i
-    cdef Py_ssize_t i
+    cdef Py_ssize_t i, l, s
 
-    r = cpython.list.PyList_New(shape[0])
+    l = shape[0]
+    s = strides[0]
+    r = cpython.list.PyList_New(l)
     if n > 1:
-        for i in range(shape[0]):
+        for i in range(l):
             r_i = pointer_to_list(
                 n - 1, &shape[1], &strides[1],
-                fmt, itemsize, d + i * strides[0]
+                fmt, itemsize, d + i * s
             )
             PyList_SET_ITEM_INC(r, i, r_i)
     else:
-        for i in range(shape[0]):
-            r_i = struct_unpack(fmt, (d + i * strides[0])[:itemsize])[0]
+        for i in range(l):
+            r_i = struct_unpack(fmt, (d + i * s)[:itemsize])[0]
             PyList_SET_ITEM_INC(r, i, r_i)
 
     return r
