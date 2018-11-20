@@ -175,10 +175,11 @@ cdef class cybuffer(object):
 
 
     def __dealloc__(self):
-        if self._shape != self._buf.shape:
-            cpython.mem.PyMem_Free(self._shape)
-        if self._strides != self._buf.strides:
-            cpython.mem.PyMem_Free(self._strides)
+        if PY2K:
+            if self._shape != self._buf.shape:
+                cpython.mem.PyMem_Free(self._shape)
+            if self._strides != self._buf.strides:
+                cpython.mem.PyMem_Free(self._strides)
 
         cpython.buffer.PyBuffer_Release(&self._buf)
 
