@@ -149,7 +149,7 @@ def test_1d_text_arrays(f, s):
 
 
 def test_mmap():
-    with contextlib.closing(mmap.mmap(-1, 10, prot=mmap.PROT_WRITE)) as v:
+    with contextlib.closing(mmap.mmap(-1, 10, access=mmap.ACCESS_WRITE)) as v:
         # Initialize buffers
         b = cybuffer(v)
         m = memoryview(buffer(v))
