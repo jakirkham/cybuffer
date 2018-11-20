@@ -48,6 +48,7 @@ install_requirements = [
 ]
 
 test_requirements = [
+    "numpy",
     "pytest",
 ]
 
