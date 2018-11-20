@@ -20,6 +20,9 @@ except NameError:
     buffer = memoryview
 
 
+Py_UNICODE_SIZE = array.array('u').itemsize
+
+
 def test_empty_constructor():
     with pytest.raises(TypeError):
         b = cybuffer()
@@ -124,9 +127,9 @@ def test_1d_text_arrays(f, s):
 
     # Validate format
     assert b.itemsize == v.itemsize
-    if f is "u" and sys.maxunicode < 65536:
+    if f is "u" and Py_UNICODE_SIZE == 2:
         assert b.format == "H"
-    elif f is "u" and sys.maxunicode >= 65536:
+    elif f is "u" and Py_UNICODE_SIZE == 4:
         assert b.format == "I"
     elif f is "c":
         assert b.format == "B"
