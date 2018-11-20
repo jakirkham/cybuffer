@@ -90,10 +90,7 @@ cdef list pointer_to_list(int n, Py_ssize_t* shape, Py_ssize_t* strides,
         shape += 1
         strides += 1
         for i in range(l):
-            r_i = pointer_to_list(
-                n, shape, strides,
-                fmt, itemsize, d
-            )
+            r_i = pointer_to_list(n, shape, strides, fmt, itemsize, d)
             PyList_SET_ITEM_INC(r, i, r_i)
             d += s
     else:
