@@ -8,6 +8,7 @@ import contextlib
 import mmap
 import sys
 
+import numpy
 import pytest
 
 from cybuffer import cybuffer
@@ -173,3 +174,42 @@ def test_mmap():
         # Cleanup to close memory
         del b
         del m
+
+
+@pytest.mark.parametrize("s",
+    [(10,), (10, 11), (10, 11, 12)]
+)
+@pytest.mark.parametrize("o",
+    ["C", "F"]
+)
+def test_nd_numpy_arrays(s, o):
+    # Initialize buffers
+    numpy.random.seed(42)
+    a = numpy.random.random(s).astype(float, order=o)
+    b = cybuffer(a)
+
+    # Validate identity
+    assert b.obj is a
+
+    # Validate shape, size, etc.
+    assert b.nbytes == a.nbytes
+    assert b.ndim == a.ndim
+    assert b.suboffsets == tuple()
+    assert b.shape == a.shape
+    assert b.strides == a.strides
+
+    # Validate format
+    assert b.format == a.dtype.char
+    assert b.itemsize == a.itemsize
+
+    # Validate contiguity
+    assert b.c_contiguous == a.flags.c_contiguous
+    assert b.f_contiguous == a.flags.f_contiguous
+    assert b.contiguous == (a.flags.c_contiguous or a.flags.f_contiguous)
+
+    # Validate permissions
+    assert b.readonly != a.flags.writeable
+
+    # Test methods
+    assert b.tobytes() == a.tobytes()
+    assert b.tolist() == a.tolist()
