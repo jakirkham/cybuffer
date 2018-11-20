@@ -24,6 +24,7 @@ from cpython.buffer cimport (
 )
 
 from array import array
+from struct import unpack as struct_unpack
 
 IF PY2K:
     import binascii
@@ -75,21 +76,23 @@ cdef tuple pointer_to_tuple(int n, Py_ssize_t* p):
 @cython.initializedcheck(False)
 @cython.nonecheck(False)
 @cython.wraparound(False)
-cdef list cvmemoryview_to_list(cvmemoryview mv):
+cdef list pointer_to_list(int n, Py_ssize_t* shape, Py_ssize_t* strides,
+                          bytes fmt, Py_ssize_t itemsize, const char* d):
     cdef list r
-    cdef cvmemoryview mv_i
     cdef object r_i
     cdef Py_ssize_t i
 
-    r = cpython.list.PyList_New(mv.view.shape[0])
-    if mv.view.ndim > 1:
-        for i in range(mv.view.shape[0]):
-            mv_i = mv[i]
-            r_i = cvmemoryview_to_list(mv_i)
+    r = cpython.list.PyList_New(shape[0])
+    if n > 1:
+        for i in range(shape[0]):
+            r_i = pointer_to_list(
+                n - 1, &shape[1], &strides[1],
+                fmt, itemsize, d + i * strides[0]
+            )
             PyList_SET_ITEM_INC(r, i, r_i)
     else:
-        for i in range(mv.view.shape[0]):
-            r_i = mv[i]
+        for i in range(shape[0]):
+            r_i = struct_unpack(fmt, (d + i * strides[0])[:itemsize])[0]
             PyList_SET_ITEM_INC(r, i, r_i)
 
     return r
@@ -281,13 +284,10 @@ cdef class cybuffer(object):
 
 
     cpdef list tolist(self):
-        cdef list r
-        cdef cvmemoryview mv
-
-        mv = cvmemoryview(self, PyBUF_FULL_RO)
-        r = cvmemoryview_to_list(mv)
-
-        return r
+        return pointer_to_list(
+            self._buf.ndim, self._shape, self._strides,
+            self._format, self.itemsize, <const char*>self._buf.buf
+        )
 
 
     def __getbuffer__(self, Py_buffer* buf, int flags):
