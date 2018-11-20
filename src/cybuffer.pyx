@@ -76,8 +76,9 @@ cdef tuple pointer_to_tuple(int n, Py_ssize_t* p):
 @cython.initializedcheck(False)
 @cython.nonecheck(False)
 @cython.wraparound(False)
-cdef list pointer_to_list(int n, Py_ssize_t* shape, Py_ssize_t* strides,
-                          bytes fmt, Py_ssize_t itemsize, const char* d):
+cdef list pointer_to_nested_list(int n, Py_ssize_t* shape, Py_ssize_t* strides,
+                                 bytes fmt, Py_ssize_t itemsize,
+                                 const char* d):
     cdef list r
     cdef object r_i
     cdef Py_ssize_t i, l, s
@@ -90,7 +91,7 @@ cdef list pointer_to_list(int n, Py_ssize_t* shape, Py_ssize_t* strides,
         shape += 1
         strides += 1
         for i in range(l):
-            r_i = pointer_to_list(n, shape, strides, fmt, itemsize, d)
+            r_i = pointer_to_nested_list(n, shape, strides, fmt, itemsize, d)
             PyList_SET_ITEM_INC(r, i, r_i)
             d += s
     else:
@@ -288,7 +289,7 @@ cdef class cybuffer(object):
 
 
     cpdef list tolist(self):
-        return pointer_to_list(
+        return pointer_to_nested_list(
             self._buf.ndim, self._shape, self._strides,
             self._format, self.itemsize, <const char*>self._buf.buf
         )
