@@ -44,8 +44,8 @@ cdef extern from *:
     #define UINT64_TC "L"
     #define UINT128_TC "Q"
 
-    #define UCS2_TC "H"
-    #define UCS4_TC "I"
+    #define UCS2_TC UINT16_TC
+    #define UCS4_TC UINT32_TC
 
     #define PyList_SET_ITEM_INC(l, i, o)  \
             Py_INCREF(o); PyList_SET_ITEM(l, i, o)
