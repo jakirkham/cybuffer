@@ -24,7 +24,8 @@ from cpython.buffer cimport (
 )
 
 from array import array
-from struct import Struct
+from struct import Struct, error as struct_error
+from warnings import warn
 
 IF PY2K:
     import binascii
@@ -201,6 +202,33 @@ cdef class cybuffer(object):
                 n_1 = self._buf.ndim - 1
                 self._shape[n_1] = self._buf.shape[n_1] // self.itemsize
                 self._strides[n_1] = self._buf.strides[n_1] * self.itemsize
+        else:
+            # Validate format is legal
+            exc = None
+            try:
+                Struct(self._format)
+            except struct_error as exc:
+                warn(
+                    "Casting unknown format '%s' to unsigned integral."
+                    % self._format
+                )
+            else:
+                return
+
+            # Cast to an equivalent width unsigned integer type if possible
+            # Raise the `struct.error` if not.
+            if self.itemsize == 16:
+                self._format = UINT128_TC
+            elif self.itemsize == 8:
+                self._format = UINT64_TC
+            elif self.itemsize == 4:
+                self._format = UINT32_TC
+            elif self.itemsize == 2:
+                self._format = UINT16_TC
+            elif self.itemsize == 1:
+                self._format = UINT8_TC
+            else:
+                raise exc
 
 
     def __dealloc__(self):
