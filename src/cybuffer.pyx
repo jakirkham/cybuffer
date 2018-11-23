@@ -131,17 +131,25 @@ cdef class cybuffer(object):
         """
 
         self.obj = data
+        
+        if PY2K:
+            try:
+                self._old_buf = cpython.oldbuffer.PyBuffer_FromReadWriteObject(
+                    data, 0, -1
+                )
+            except TypeError:
+                try:
+                    self._old_buf = cpython.oldbuffer.PyBuffer_FromObject(
+                        data, 0, -1
+                    )
+                except TypeError:
+                    pass
 
         cdef object data_buf
         if cpython.buffer.PyObject_CheckBuffer(data):
             data_buf = data
-        elif PY2K:
-            try:
-                data_buf = cpython.oldbuffer.PyBuffer_FromReadWriteObject(
-                    data, 0, -1
-                )
-            except TypeError:
-                data_buf = cpython.oldbuffer.PyBuffer_FromObject(data, 0, -1)
+        elif PY2K and self._old_buf is not None:
+            data_buf = self._old_buf
         else:
             raise TypeError("Unable to get buffer protocol API for `data`.")
 
@@ -356,6 +364,9 @@ cdef class cybuffer(object):
 
 
     def __getreadbuffer__(self, Py_ssize_t i, void** p):
+        if self._old_buf is not None:
+            return self._old_buf
+
         if i != 0:
             raise ValueError("Accessing non-existent segment")
         if not self.contiguous:
