@@ -38,7 +38,7 @@ cdef extern from "Python.h":
 
 cdef extern from *:
     """
-    #define UBYTE_TC "B"
+    #define UINT8_TC "B"
     #define UCS2_TC "H"
     #define UCS4_TC "I"
 
@@ -48,7 +48,7 @@ cdef extern from *:
             Py_INCREF(o); PyTuple_SET_ITEM(l, i, o)
     """
 
-    char* UBYTE_TC
+    char* UINT8_TC
     char* UCS2_TC
     char* UCS4_TC
 
@@ -170,7 +170,7 @@ cdef class cybuffer(object):
             if typecode == "B":
                 return
             elif PY2K and typecode == "c":
-                self._format = UBYTE_TC
+                self._format = UINT8_TC
                 return
             elif (PY2K or PY3K) and typecode == "u":
                 if Py_UNICODE_SIZE == 2:
