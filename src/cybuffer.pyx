@@ -39,6 +39,7 @@ cdef extern from "Python.h":
 cdef extern from *:
     """
     #define UINT8_TC "B"
+
     #define UCS2_TC "H"
     #define UCS4_TC "I"
 
@@ -49,6 +50,7 @@ cdef extern from *:
     """
 
     char* UINT8_TC
+
     char* UCS2_TC
     char* UCS4_TC
 
