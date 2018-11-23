@@ -1,6 +1,7 @@
 cdef class cybuffer(object):
     cdef readonly object obj
 
+    cdef object _old_buf
     cdef Py_buffer _buf
 
     cdef char* _format
