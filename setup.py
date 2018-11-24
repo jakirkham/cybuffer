@@ -69,7 +69,7 @@ else:
             "DEF PY2K = " + str(sys.version_info.major == 2) + "\n",
             "DEF PY3K = " + str(sys.version_info.major == 3) + "\n"
         ])
-        if sys.version_info.major < 4:
+        if sys.version_info.major < 4:  # pragma: no branch
             Py_UNICODE_SIZE = array.array('u').itemsize
             f.writelines([
                 "DEF Py_UNICODE_SIZE = " + str(Py_UNICODE_SIZE) + "\n",
