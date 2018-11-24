@@ -33,8 +33,6 @@ include "version.pxi"
 
 
 cdef extern from "Python.h":
-    size_t Py_UNICODE_SIZE
-
     object PyMemoryView_FromObject(object obj)
 
 
@@ -162,26 +160,22 @@ cdef class cybuffer(object):
         # Workaround some special cases with the builtin array
         cdef size_t len_nd_b
         cdef int n_1
-        if isinstance(self.obj, array):
-            # Fix-up typecode
+        if (PY2K or PY3K) and isinstance(self.obj, array):
+            # Cast to appropriate format with given itemsize
             typecode = self.obj.typecode
-            if typecode == "B":
-                return
-            elif PY2K and typecode == "c":
-                self._format = UBYTE_TC
-                return
-            elif (PY2K or PY3K) and typecode == "u":
+            if typecode == "u":
+                if PY2K:
+                    self.itemsize = Py_UNICODE_SIZE
                 if Py_UNICODE_SIZE == 2:
                     self._format = UCS2_TC
                 elif Py_UNICODE_SIZE == 4:
                     self._format = UCS4_TC
-            elif PY2K:
+            elif PY2K and typecode not in "Bc":
+                self.itemsize = self.obj.itemsize
                 self._format = typecode
 
-            # Adjust itemsize, shape, and strides based on casting
-            if PY2K:
-                self.itemsize = self.obj.itemsize
-
+            # Adjust shape and strides based on casting
+            if PY2K and self.itemsize != 1:
                 len_nd_b = self._buf.ndim * sizeof(Py_ssize_t)
                 self._shape = <Py_ssize_t*>cpython.mem.PyMem_Malloc(len_nd_b)
                 self._strides = <Py_ssize_t*>cpython.mem.PyMem_Malloc(len_nd_b)
