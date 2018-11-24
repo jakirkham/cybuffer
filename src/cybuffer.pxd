@@ -1,3 +1,10 @@
+include "config.pxi"
+
+
+IF PY2K:
+    cpdef getbuffer(obj, Py_ssize_t offset=*, Py_ssize_t size=*)
+
+
 cdef class cybuffer(object):
     cdef readonly object obj
 

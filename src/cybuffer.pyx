@@ -11,7 +11,6 @@ cimport cpython.buffer
 cimport cpython.bytes
 cimport cpython.list
 cimport cpython.mem
-cimport cpython.oldbuffer
 cimport cpython.tuple
 
 from cpython.array cimport array
@@ -53,6 +52,31 @@ cdef extern from *:
 
     void PyList_SET_ITEM_INC(object, Py_ssize_t, object)
     void PyTuple_SET_ITEM_INC(object, Py_ssize_t, object)
+
+
+IF PY2K:
+    cimport cpython.oldbuffer
+    from cpython.oldbuffer cimport (
+        PyBuffer_FromReadWriteObject, PyBuffer_FromObject
+    )
+
+
+    cdef extern from "Python.h":
+        int PyObject_AsWriteBuffer(object obj,
+                                   void **buffer,
+                                   Py_ssize_t *buffer_len) except -1
+
+
+    cpdef getbuffer(obj, Py_ssize_t offset=0, Py_ssize_t size=-1):
+        cdef void* buf_ptr
+        cdef Py_ssize_t buf_len
+
+        try:
+            PyObject_AsWriteBuffer(obj, &buf_ptr, &buf_len)
+        except TypeError:
+            return PyBuffer_FromObject(obj, offset, size)
+        else:
+            return PyBuffer_FromReadWriteObject(obj, offset, size)
 
 
 cdef tuple pointer_to_tuple(int n, Py_ssize_t* p):
@@ -130,13 +154,8 @@ cdef class cybuffer(object):
         self.obj = data
 
         # Fallback to old buffer protocol on Python 2 if necessary
-        if PY2K and not cpython.buffer.PyObject_CheckBuffer(self.obj):
-            try:
-                data = cpython.oldbuffer.PyBuffer_FromReadWriteObject(
-                    self.obj, 0, -1
-                )
-            except TypeError:
-                data = cpython.oldbuffer.PyBuffer_FromObject(self.obj, 0, -1)
+        if PY2K and not cpython.buffer.PyObject_CheckBuffer(data):
+            data = getbuffer(data)
 
         # Fill out our buffer based on the data
         cpython.buffer.PyObject_GetBuffer(data, &self._buf, PyBUF_FULL_RO)

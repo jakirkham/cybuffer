@@ -16,12 +16,35 @@ from cybuffer import cybuffer
 
 
 try:
-    buffer
-except NameError:
-    buffer = memoryview
+    from cybuffer import getbuffer
+except ImportError:
+    getbuffer = memoryview
 
 
 Py_UNICODE_SIZE = array.array('u').itemsize
+
+
+@pytest.mark.skipif(
+    sys.version_info[0] != 2, reason="getbuffer is Python 2 only"
+)
+@pytest.mark.parametrize("v, to_char", [
+    (b"abcdefghi", lambda c: c),
+    (bytearray(b"abcdefghi"), chr),
+])
+def test_getbuffer(v, to_char):
+    # Initialize buffers
+    b = getbuffer(v)
+    m = memoryview(v)
+    mb = memoryview(b)
+
+    # Validate type
+    assert isinstance(b, buffer)
+
+    # Validate content
+    assert list(b) == list(map(to_char, v))
+
+    # Validate permissions
+    assert mb.readonly == m.readonly
 
 
 def test_empty_constructor():
@@ -93,7 +116,7 @@ def test_1d_arrays(f):
     # Initialize buffers
     v = array.array(f, [0, 1, 2, 3, 4])
     b = cybuffer(v)
-    m = memoryview(buffer(v))
+    m = memoryview(getbuffer(v))
 
     # Validate format
     assert b.format == v.typecode
@@ -105,10 +128,7 @@ def test_1d_arrays(f):
     assert b.contiguous
 
     # Validate permissions
-    if isinstance(b, memoryview):
-        assert b.readonly
-    else:
-        assert not b.readonly
+    assert not b.readonly
 
     # Test methods
     assert b.tolist() == v.tolist()
@@ -128,7 +148,7 @@ def test_1d_text_arrays(f, s):
     # Initialize buffers
     v = array.array(f, s)
     b = cybuffer(v)
-    m = memoryview(buffer(v))
+    m = memoryview(getbuffer(v))
 
     # Validate format
     assert b.itemsize == v.itemsize
@@ -145,10 +165,7 @@ def test_1d_text_arrays(f, s):
     assert b.contiguous
 
     # Validate permissions
-    if isinstance(b, memoryview):
-        assert b.readonly
-    else:
-        assert not b.readonly
+    assert not b.readonly
 
     # Test methods
     assert b.tolist() == list(map(ord, v))
@@ -160,7 +177,7 @@ def test_mmap():
     with contextlib.closing(mmap.mmap(-1, 10, access=mmap.ACCESS_WRITE)) as v:
         # Initialize buffers
         b = cybuffer(v)
-        m = memoryview(buffer(v))
+        m = memoryview(getbuffer(v))
 
         # Validate format
         assert b.format == m.format
