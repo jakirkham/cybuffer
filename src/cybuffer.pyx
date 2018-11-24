@@ -130,23 +130,17 @@ cdef class cybuffer(object):
 
         self.obj = data
 
-        cdef object data_buf
-        if cpython.buffer.PyObject_CheckBuffer(self.obj):
-            data_buf = self.obj
-        elif PY2K:
+        # Fallback to old buffer protocol on Python 2 if necessary
+        if PY2K and not cpython.buffer.PyObject_CheckBuffer(self.obj):
             try:
-                data_buf = cpython.oldbuffer.PyBuffer_FromReadWriteObject(
+                data = cpython.oldbuffer.PyBuffer_FromReadWriteObject(
                     self.obj, 0, -1
                 )
             except TypeError:
-                data_buf = cpython.oldbuffer.PyBuffer_FromObject(
-                    self.obj, 0, -1
-                )
-        else:
-            raise TypeError("Unable to get buffer protocol API for `data`.")
+                data = cpython.oldbuffer.PyBuffer_FromObject(self.obj, 0, -1)
 
         # Fill out our buffer based on the data
-        cpython.buffer.PyObject_GetBuffer(data_buf, &self._buf, PyBUF_FULL_RO)
+        cpython.buffer.PyObject_GetBuffer(data, &self._buf, PyBUF_FULL_RO)
 
         # Allocate and/or initialize metadata for casting
         self._format = self._buf.format
