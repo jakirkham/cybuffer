@@ -133,15 +133,17 @@ cdef class cybuffer(object):
         self.obj = data
 
         cdef object data_buf
-        if cpython.buffer.PyObject_CheckBuffer(data):
-            data_buf = data
+        if cpython.buffer.PyObject_CheckBuffer(self.obj):
+            data_buf = self.obj
         elif PY2K:
             try:
                 data_buf = cpython.oldbuffer.PyBuffer_FromReadWriteObject(
-                    data, 0, -1
+                    self.obj, 0, -1
                 )
             except TypeError:
-                data_buf = cpython.oldbuffer.PyBuffer_FromObject(data, 0, -1)
+                data_buf = cpython.oldbuffer.PyBuffer_FromObject(
+                    self.obj, 0, -1
+                )
         else:
             raise TypeError("Unable to get buffer protocol API for `data`.")
 
@@ -167,9 +169,9 @@ cdef class cybuffer(object):
         # Workaround some special cases with the builtin array
         cdef size_t len_nd_b
         cdef int n_1
-        if isinstance(data, array):
+        if isinstance(self.obj, array):
             # Fix-up typecode
-            typecode = data.typecode
+            typecode = self.obj.typecode
             if typecode == "B":
                 return
             elif PY2K and typecode == "c":
@@ -185,7 +187,7 @@ cdef class cybuffer(object):
 
             # Adjust itemsize, shape, and strides based on casting
             if PY2K:
-                self.itemsize = data.itemsize
+                self.itemsize = self.obj.itemsize
 
                 len_nd_b = self._buf.ndim * sizeof(Py_ssize_t)
                 self._shape = <Py_ssize_t*>cpython.mem.PyMem_Malloc(len_nd_b)
