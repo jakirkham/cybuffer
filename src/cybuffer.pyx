@@ -143,8 +143,8 @@ cdef class cybuffer(object):
         self.obj = data
 
         # Fallback to old buffer protocol on Python 2 if necessary
-        if PY2K and not cpython.buffer.PyObject_CheckBuffer(self.obj):
-            data = getbuffer(self.obj)
+        if PY2K and not cpython.buffer.PyObject_CheckBuffer(data):
+            data = getbuffer(data)
 
         # Fill out our buffer based on the data
         cpython.buffer.PyObject_GetBuffer(data, &self._buf, PyBUF_FULL_RO)
