@@ -186,7 +186,7 @@ cdef class cybuffer(object):
                 self.itemsize = self.obj.itemsize
                 self._format = self.obj.typecode
 
-            # Cast to appropriate format
+            # Recast text formats
             fmt = self._format[0]
             if PY2K and fmt == 'c':
                 self._format = UINT8_TC
