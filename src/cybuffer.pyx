@@ -27,7 +27,7 @@ from array import array
 from struct import Struct
 
 IF PY2K:
-    import binascii
+    from binascii import hexlify
 
 include "version.pxi"
 
@@ -271,7 +271,7 @@ cdef class cybuffer(object):
     cpdef str hex(self):
         cdef str s
         if PY2K:
-            s = binascii.hexlify(self.tobytes())
+            s = hexlify(self.tobytes())
         else:
             s = self.tobytes().hex()
 
