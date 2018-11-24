@@ -35,8 +35,6 @@ include "version.pxi"
 cdef extern from "Python.h":
     size_t Py_UNICODE_SIZE
 
-    object PyMemoryView_FromObject(object obj)
-
 
 cdef extern from *:
     """
@@ -132,22 +130,17 @@ cdef class cybuffer(object):
 
         self.obj = data
 
-        cdef object data_buf
-        if cpython.buffer.PyObject_CheckBuffer(data):
-            data_buf = data
-        elif PY2K:
+        # Fallback to old buffer protocol on Python 2 if necessary
+        if PY2K and not cpython.buffer.PyObject_CheckBuffer(self.obj):
             try:
-                data_buf = cpython.oldbuffer.PyBuffer_FromReadWriteObject(
-                    data, 0, -1
+                data = cpython.oldbuffer.PyBuffer_FromReadWriteObject(
+                    self.obj, 0, -1
                 )
             except TypeError:
-                data_buf = cpython.oldbuffer.PyBuffer_FromObject(data, 0, -1)
-        else:
-            raise TypeError("Unable to get buffer protocol API for `data`.")
+                data = cpython.oldbuffer.PyBuffer_FromObject(self.obj, 0, -1)
 
-        # Create a buffer based on memoryview
-        data_buf = PyMemoryView_FromObject(data_buf)
-        cpython.buffer.PyObject_GetBuffer(data_buf, &self._buf, PyBUF_FULL_RO)
+        # Fill out our buffer based on the data
+        cpython.buffer.PyObject_GetBuffer(data, &self._buf, PyBUF_FULL_RO)
 
         # Allocate and/or initialize metadata for casting
         self._format = self._buf.format
@@ -155,7 +148,7 @@ cdef class cybuffer(object):
         self._shape = self._buf.shape
         self._strides = self._buf.strides
 
-        # Figure out whether the memoryview is contiguous
+        # Figure out whether the data is contiguous
         self.c_contiguous = cpython.buffer.PyBuffer_IsContiguous(
             &self._buf, b'C'
         )
@@ -167,9 +160,9 @@ cdef class cybuffer(object):
         # Workaround some special cases with the builtin array
         cdef size_t len_nd_b
         cdef int n_1
-        if isinstance(data, array):
+        if isinstance(self.obj, array):
             # Fix-up typecode
-            typecode = data.typecode
+            typecode = self.obj.typecode
             if typecode == "B":
                 return
             elif PY2K and typecode == "c":
@@ -185,7 +178,7 @@ cdef class cybuffer(object):
 
             # Adjust itemsize, shape, and strides based on casting
             if PY2K:
-                self.itemsize = data.itemsize
+                self.itemsize = self.obj.itemsize
 
                 len_nd_b = self._buf.ndim * sizeof(Py_ssize_t)
                 self._shape = <Py_ssize_t*>cpython.mem.PyMem_Malloc(len_nd_b)
