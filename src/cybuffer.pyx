@@ -166,17 +166,18 @@ cdef class cybuffer(object):
             if typecode == "B" or (PY2K and typecode == "c"):
                 return
             elif typecode == "u":
+                if PY2K:
+                    self.itemsize = Py_UNICODE_SIZE
                 if Py_UNICODE_SIZE == 2:
                     self._format = UCS2_TC
                 elif Py_UNICODE_SIZE == 4:
                     self._format = UCS4_TC
             elif PY2K:
+                self.itemsize = self.obj.itemsize
                 self._format = typecode
 
-            # Adjust itemsize, shape, and strides based on casting
+            # Adjust shape and strides based on casting
             if PY2K:
-                self.itemsize = self.obj.itemsize
-
                 len_nd_b = self._buf.ndim * sizeof(Py_ssize_t)
                 self._shape = <Py_ssize_t*>cpython.mem.PyMem_Malloc(len_nd_b)
                 self._strides = <Py_ssize_t*>cpython.mem.PyMem_Malloc(len_nd_b)
