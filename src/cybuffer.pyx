@@ -41,13 +41,13 @@ cdef extern from "Python.h":
 
 cdef extern from *:
     """
-    #define UINT8_TC "B"
-    #define UINT16_TC "H"
-    #define UINT32_TC "I"
-
     #define CHAR_TC "c"
     #define UCS2_TC "u"
     #define UCS4_TC "w"
+
+    #define UINT8_TC "B"
+    #define UINT16_TC "H"
+    #define UINT32_TC "I"
 
     #define PyList_SET_ITEM_INC(l, i, o)  \
             Py_INCREF(o); PyList_SET_ITEM(l, i, o)
@@ -55,13 +55,13 @@ cdef extern from *:
             Py_INCREF(o); PyTuple_SET_ITEM(l, i, o)
     """
 
-    char* UINT8_TC
-    char* UINT16_TC
-    char* UINT32_TC
-
     char* CHAR_TC
     char* UCS2_TC
     char* UCS4_TC
+
+    char* UINT8_TC
+    char* UINT16_TC
+    char* UINT32_TC
 
     void PyList_SET_ITEM_INC(object, Py_ssize_t, object)
     void PyTuple_SET_ITEM_INC(object, Py_ssize_t, object)
