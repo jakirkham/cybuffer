@@ -11,7 +11,6 @@ cimport cpython.buffer
 cimport cpython.bytes
 cimport cpython.list
 cimport cpython.mem
-cimport cpython.oldbuffer
 cimport cpython.tuple
 
 from cpython.array cimport array
@@ -145,12 +144,7 @@ cdef class cybuffer(object):
 
         # Fallback to old buffer protocol on Python 2 if necessary
         if PY2K and not cpython.buffer.PyObject_CheckBuffer(self.obj):
-            try:
-                data = cpython.oldbuffer.PyBuffer_FromReadWriteObject(
-                    self.obj, 0, -1
-                )
-            except TypeError:
-                data = cpython.oldbuffer.PyBuffer_FromObject(self.obj, 0, -1)
+            data = getbuffer(self.obj)
 
         # Fill out our buffer based on the data
         cpython.buffer.PyObject_GetBuffer(data, &self._buf, PyBUF_FULL_RO)
