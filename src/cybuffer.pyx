@@ -2,10 +2,6 @@ include "config.pxi"
 
 cimport cybuffer
 
-cimport libc
-cimport libc.string
-from libc.string cimport strcmp
-
 cimport cython
 cimport cython.view
 
@@ -182,6 +178,8 @@ cdef class cybuffer(object):
         self.contiguous = self.c_contiguous or self.f_contiguous
 
         # Workaround some special cases with the builtin array
+        IF PY2K or PY3K:
+            cdef char fmt
         if (PY2K or PY3K) and isinstance(self.obj, array):
             # Correct itemsize and format on Python 2
             if PY2K:
@@ -189,13 +187,13 @@ cdef class cybuffer(object):
                 self._format = self.obj.typecode
 
             # Cast to appropriate format
-            if (strcmp(self._format, "u") == 0 or
-                strcmp(self._format, "w") == 0):
+            fmt = self._format[0]
+            if fmt == 'u' or fmt == 'w':
                 if self.itemsize == 2:
                     self._format = UINT16_TC
                 elif self.itemsize == 4:
                     self._format = UINT32_TC
-            elif PY2K and strcmp(self._format, "c") == 0:
+            elif PY2K and fmt == 'c':
                 self._format = UINT8_TC
 
             # Adjust shape and strides based on casting
