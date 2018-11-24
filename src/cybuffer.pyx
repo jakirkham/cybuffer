@@ -35,8 +35,6 @@ include "version.pxi"
 cdef extern from "Python.h":
     size_t Py_UNICODE_SIZE
 
-    object PyMemoryView_FromObject(object obj)
-
 
 cdef extern from *:
     """
@@ -147,8 +145,7 @@ cdef class cybuffer(object):
         else:
             raise TypeError("Unable to get buffer protocol API for `data`.")
 
-        # Create a buffer based on memoryview
-        data_buf = PyMemoryView_FromObject(data_buf)
+        # Fill out our buffer based on the data
         cpython.buffer.PyObject_GetBuffer(data_buf, &self._buf, PyBUF_FULL_RO)
 
         # Allocate and/or initialize metadata for casting
@@ -157,7 +154,7 @@ cdef class cybuffer(object):
         self._shape = self._buf.shape
         self._strides = self._buf.strides
 
-        # Figure out whether the memoryview is contiguous
+        # Figure out whether the data is contiguous
         self.c_contiguous = cpython.buffer.PyBuffer_IsContiguous(
             &self._buf, b'C'
         )
