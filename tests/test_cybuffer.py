@@ -105,10 +105,7 @@ def test_1d_arrays(f):
     assert b.contiguous
 
     # Validate permissions
-    if isinstance(b, memoryview):
-        assert b.readonly
-    else:
-        assert not b.readonly
+    assert not b.readonly
 
     # Test methods
     assert b.tolist() == v.tolist()
@@ -145,10 +142,7 @@ def test_1d_text_arrays(f, s):
     assert b.contiguous
 
     # Validate permissions
-    if isinstance(b, memoryview):
-        assert b.readonly
-    else:
-        assert not b.readonly
+    assert not b.readonly
 
     # Test methods
     assert b.tolist() == list(map(ord, v))
