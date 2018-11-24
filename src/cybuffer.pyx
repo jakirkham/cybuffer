@@ -33,8 +33,6 @@ include "version.pxi"
 
 
 cdef extern from "Python.h":
-    size_t Py_UNICODE_SIZE
-
     object PyMemoryView_FromObject(object obj)
 
 
