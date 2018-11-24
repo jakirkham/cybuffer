@@ -177,7 +177,7 @@ cdef class cybuffer(object):
                 self._format = typecode
 
             # Adjust shape and strides based on casting
-            if PY2K:
+            if PY2K and self.itemsize != 1:
                 len_nd_b = self._buf.ndim * sizeof(Py_ssize_t)
                 self._shape = <Py_ssize_t*>cpython.mem.PyMem_Malloc(len_nd_b)
                 self._strides = <Py_ssize_t*>cpython.mem.PyMem_Malloc(len_nd_b)
