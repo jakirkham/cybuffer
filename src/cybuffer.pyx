@@ -22,6 +22,7 @@ from cpython.buffer cimport (
     PyBUF_C_CONTIGUOUS, PyBUF_F_CONTIGUOUS, PyBUF_ANY_CONTIGUOUS,
     PyBUF_FULL_RO
 )
+from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 from array import array
 from struct import Struct
@@ -156,7 +157,6 @@ cdef class cybuffer(object):
         self.contiguous = self.c_contiguous or self.f_contiguous
 
         # Workaround some special cases with the builtin array
-        cdef size_t len_nd_b
         if (PY2K or PY3K) and isinstance(self.obj, array):
             # Cast to appropriate format with given itemsize
             typecode = self.obj.typecode
@@ -173,9 +173,8 @@ cdef class cybuffer(object):
 
             # Adjust shape and strides based on casting
             if PY2K and self.itemsize != 1:
-                len_nd_b = sizeof(Py_ssize_t)
-                self._shape = <Py_ssize_t*>cpython.mem.PyMem_Malloc(len_nd_b)
-                self._strides = <Py_ssize_t*>cpython.mem.PyMem_Malloc(len_nd_b)
+                self._shape = <Py_ssize_t*>PyMem_Malloc(sizeof(Py_ssize_t))
+                self._strides = <Py_ssize_t*>PyMem_Malloc(sizeof(Py_ssize_t))
 
                 self._shape[0] = self._buf.shape[0] // self.itemsize
                 self._strides[0] = self._buf.strides[0] * self.itemsize
@@ -184,9 +183,9 @@ cdef class cybuffer(object):
     def __dealloc__(self):
         if PY2K:
             if self._shape != self._buf.shape:
-                cpython.mem.PyMem_Free(self._shape)
+                PyMem_Free(self._shape)
             if self._strides != self._buf.strides:
-                cpython.mem.PyMem_Free(self._strides)
+                PyMem_Free(self._strides)
 
         cpython.buffer.PyBuffer_Release(&self._buf)
 
