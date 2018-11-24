@@ -166,7 +166,6 @@ cdef class cybuffer(object):
             if typecode == "B":
                 return
             elif PY2K and typecode == "c":
-                self._format = UBYTE_TC
                 return
             elif typecode == "u":
                 if Py_UNICODE_SIZE == 2:
