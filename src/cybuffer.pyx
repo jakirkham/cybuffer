@@ -188,13 +188,13 @@ cdef class cybuffer(object):
 
             # Cast to appropriate format
             fmt = self._format[0]
-            if fmt == 'u' or fmt == 'w':
+            if PY2K and fmt == 'c':
+                self._format = UINT8_TC
+            elif fmt == 'u' or fmt == 'w':
                 if self.itemsize == 2:
                     self._format = UINT16_TC
                 elif self.itemsize == 4:
                     self._format = UINT32_TC
-            elif PY2K and fmt == 'c':
-                self._format = UINT8_TC
 
             # Adjust shape and strides based on casting
             if PY2K and self.itemsize != 1:
