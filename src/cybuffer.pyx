@@ -55,6 +55,20 @@ cdef extern from *:
     void PyTuple_SET_ITEM_INC(object, Py_ssize_t, object)
 
 
+IF PY2K:
+    cimport cpython.oldbuffer
+    from cpython.oldbuffer cimport (
+        PyBuffer_FromReadWriteObject, PyBuffer_FromObject
+    )
+
+
+    cpdef getbuffer(obj, Py_ssize_t offset=0, Py_ssize_t size=-1):
+        try:
+            return PyBuffer_FromReadWriteObject(obj, offset, size)
+        except TypeError:
+            return PyBuffer_FromObject(obj, offset, size)
+
+
 cdef tuple pointer_to_tuple(int n, Py_ssize_t* p):
     cdef int i
     cdef object p_i
