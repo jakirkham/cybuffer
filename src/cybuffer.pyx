@@ -4,6 +4,7 @@ cimport cybuffer
 
 cimport libc
 cimport libc.string
+from libc.string cimport strcmp
 
 cimport cython
 cimport cython.view
@@ -196,11 +197,11 @@ cdef class cybuffer(object):
                 self._format = self.obj.typecode
 
             # Cast to appropriate format
-            if libc.string.strcmp(self._format, UCS2_TC) == 0:
+            if strcmp(self._format, UCS2_TC) == 0:
                 self._format = UINT16_TC
-            elif libc.string.strcmp(self._format, UCS4_TC) == 0:
+            elif strcmp(self._format, UCS4_TC) == 0:
                 self._format = UINT32_TC
-            elif PY2K and libc.string.strcmp(self._format, CHAR_TC) == 0:
+            elif PY2K and strcmp(self._format, CHAR_TC) == 0:
                 self._format = UINT8_TC
 
             # Adjust shape and strides based on casting
