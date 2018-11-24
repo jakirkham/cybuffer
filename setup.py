@@ -15,9 +15,6 @@ from distutils.sysconfig import get_config_var, get_python_inc
 import versioneer
 
 
-
-
-
 class PyTest(TestCommand):
     description = "Run test suite with pytest"
 
@@ -74,13 +71,11 @@ else:
             "__version__ = " + "\"" + str(version) + "\""
         ])
 
-
 try:
     i = sys.argv.index("test")
     sys.argv = sys.argv[:i] + ["build_ext", "--inplace"] + sys.argv[i:]
 except ValueError:
     pass
-
 
 include_dirs = [
     os.path.dirname(get_python_inc()),
@@ -99,7 +94,6 @@ extra_compile_args = []
 cython_directives = {}
 cython_line_directives = {}
 
-
 if "test" in sys.argv:
     cython_directives["binding"] = True
     cython_directives["embedsignature"] = True
@@ -110,7 +104,6 @@ if "test" in sys.argv:
         ("CYTHON_TRACE", 1),
         ("CYTHON_TRACE_NOGIL", 1),
     ]
-
 
 ext_modules = [
     Extension(
@@ -127,7 +120,6 @@ ext_modules = [
 for em in ext_modules:
     em.cython_directives = dict(cython_directives)
     em.cython_line_directives = dict(cython_line_directives)
-
 
 setup(
     name="cybuffer",
