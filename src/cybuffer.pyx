@@ -162,7 +162,7 @@ cdef class cybuffer(object):
         # Workaround some special cases with the builtin array
         cdef size_t len_nd_b
         cdef int n_1
-        if isinstance(self.obj, array):
+        if (PY2K or PY3K) and isinstance(self.obj, array):
             # Fix-up typecode
             typecode = self.obj.typecode
             if typecode == "B":
@@ -170,7 +170,7 @@ cdef class cybuffer(object):
             elif PY2K and typecode == "c":
                 self._format = UBYTE_TC
                 return
-            elif (PY2K or PY3K) and typecode == "u":
+            elif typecode == "u":
                 if Py_UNICODE_SIZE == 2:
                     self._format = UCS2_TC
                 elif Py_UNICODE_SIZE == 4:
