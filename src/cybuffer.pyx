@@ -161,7 +161,7 @@ cdef class cybuffer(object):
         cdef size_t len_nd_b
         cdef int n_1
         if (PY2K or PY3K) and isinstance(self.obj, array):
-            # Fix-up typecode
+            # Cast to appropriate format with given itemsize
             typecode = self.obj.typecode
             if typecode == "u":
                 if PY2K:
