@@ -35,6 +35,8 @@ include "version.pxi"
 cdef extern from "Python.h":
     size_t Py_UNICODE_SIZE
 
+    object PyMemoryView_FromObject(object obj)
+
 
 cdef extern from *:
     """
@@ -269,11 +271,18 @@ cdef class cybuffer(object):
 
 
     cpdef str hex(self):
+        cdef object d
         cdef str s
-        if PY2K:
-            s = hexlify(self.tobytes())
+
+        if self.c_contiguous:
+            d = self
         else:
-            s = self.tobytes().hex()
+            d = self.tobytes()
+
+        if PY2K:
+            s = hexlify(d)
+        else:
+            s = PyMemoryView_FromObject(d).hex()
 
         return s
 
