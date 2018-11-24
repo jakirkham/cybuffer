@@ -24,6 +24,29 @@ except ImportError:
 Py_UNICODE_SIZE = array.array('u').itemsize
 
 
+@pytest.mark.skipif(
+    sys.version_info[0] != 2, reason="getbuffer is Python 2 only"
+)
+@pytest.mark.parametrize("v, to_char", [
+    (b"abcdefghi", lambda c: c),
+    (bytearray(b"abcdefghi"), chr),
+])
+def test_getbuffer(v, to_char):
+    # Initialize buffers
+    b = getbuffer(v)
+    m = memoryview(v)
+    mb = memoryview(b)
+
+    # Validate type
+    assert isinstance(b, buffer)
+
+    # Validate content
+    assert list(b) == list(map(to_char, v))
+
+    # Validate permissions
+    assert mb.readonly == m.readonly
+
+
 def test_empty_constructor():
     with pytest.raises(TypeError):
         b = cybuffer()
