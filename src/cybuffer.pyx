@@ -157,7 +157,6 @@ cdef class cybuffer(object):
         self.contiguous = self.c_contiguous or self.f_contiguous
 
         # Workaround some special cases with the builtin array
-        cdef size_t len_nd_b
         if (PY2K or PY3K) and isinstance(self.obj, array):
             # Cast to appropriate format with given itemsize
             typecode = self.obj.typecode
@@ -174,9 +173,8 @@ cdef class cybuffer(object):
 
             # Adjust shape and strides based on casting
             if PY2K and self.itemsize != 1:
-                len_nd_b = sizeof(Py_ssize_t)
-                self._shape = <Py_ssize_t*>PyMem_Malloc(len_nd_b)
-                self._strides = <Py_ssize_t*>PyMem_Malloc(len_nd_b)
+                self._shape = <Py_ssize_t*>PyMem_Malloc(sizeof(Py_ssize_t))
+                self._strides = <Py_ssize_t*>PyMem_Malloc(sizeof(Py_ssize_t))
 
                 self._shape[0] = self._buf.shape[0] // self.itemsize
                 self._strides[0] = self._buf.strides[0] * self.itemsize
