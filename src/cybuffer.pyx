@@ -42,10 +42,6 @@ cdef extern from "Python.h":
 
 cdef extern from *:
     """
-    #define CHAR_TC "c"
-    #define UCS2_TC "u"
-    #define UCS4_TC "w"
-
     #define UINT8_TC "B"
     #define UINT16_TC "H"
     #define UINT32_TC "I"
@@ -55,10 +51,6 @@ cdef extern from *:
     #define PyTuple_SET_ITEM_INC(l, i, o)  \
             Py_INCREF(o); PyTuple_SET_ITEM(l, i, o)
     """
-
-    char* CHAR_TC
-    char* UCS2_TC
-    char* UCS4_TC
 
     char* UINT8_TC
     char* UINT16_TC
@@ -197,11 +189,13 @@ cdef class cybuffer(object):
                 self._format = self.obj.typecode
 
             # Cast to appropriate format
-            if strcmp(self._format, UCS2_TC) == 0:
-                self._format = UINT16_TC
-            elif strcmp(self._format, UCS4_TC) == 0:
-                self._format = UINT32_TC
-            elif PY2K and strcmp(self._format, CHAR_TC) == 0:
+            if (strcmp(self._format, "u") == 0 or
+                strcmp(self._format, "w") == 0):
+                if self.itemsize == 2:
+                    self._format = UINT16_TC
+                elif self.itemsize == 4:
+                    self._format = UINT32_TC
+            elif PY2K and strcmp(self._format, "c") == 0:
                 self._format = UINT8_TC
 
             # Adjust shape and strides based on casting
