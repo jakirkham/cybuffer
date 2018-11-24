@@ -61,11 +61,22 @@ IF PY2K:
     )
 
 
+    cdef extern from "Python.h":
+        int PyObject_AsWriteBuffer(object obj,
+                                   void **buffer,
+                                   Py_ssize_t *buffer_len) except -1
+
+
     cpdef getbuffer(obj, Py_ssize_t offset=0, Py_ssize_t size=-1):
+        cdef void* buf_ptr
+        cdef Py_ssize_t buf_len
+
         try:
-            return PyBuffer_FromReadWriteObject(obj, offset, size)
+            PyObject_AsWriteBuffer(obj, &buf_ptr, &buf_len)
         except TypeError:
             return PyBuffer_FromObject(obj, offset, size)
+        else:
+            return PyBuffer_FromReadWriteObject(obj, offset, size)
 
 
 cdef tuple pointer_to_tuple(int n, Py_ssize_t* p):
