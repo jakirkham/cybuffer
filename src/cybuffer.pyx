@@ -38,8 +38,9 @@ cdef extern from "Python.h":
 
 cdef extern from *:
     """
-    #define UCS2_TC "H"
-    #define UCS4_TC "I"
+    #define UINT8_TC "B"
+    #define UINT16_TC "H"
+    #define UINT32_TC "I"
 
     #define PyList_SET_ITEM_INC(l, i, o)  \
             Py_INCREF(o); PyList_SET_ITEM(l, i, o)
@@ -47,8 +48,9 @@ cdef extern from *:
             Py_INCREF(o); PyTuple_SET_ITEM(l, i, o)
     """
 
-    char* UCS2_TC
-    char* UCS4_TC
+    char* UINT8_TC
+    char* UINT16_TC
+    char* UINT32_TC
 
     void PyList_SET_ITEM_INC(object, Py_ssize_t, object)
     void PyTuple_SET_ITEM_INC(object, Py_ssize_t, object)
@@ -176,19 +178,23 @@ cdef class cybuffer(object):
         self.contiguous = self.c_contiguous or self.f_contiguous
 
         # Workaround some special cases with the builtin array
+        IF PY2K or PY3K:
+            cdef char fmt
         if (PY2K or PY3K) and isinstance(self.obj, array):
-            # Cast to appropriate format with given itemsize
-            typecode = self.obj.typecode
-            if typecode == "u":
-                if PY2K:
-                    self.itemsize = Py_UNICODE_SIZE
-                if Py_UNICODE_SIZE == 2:
-                    self._format = UCS2_TC
-                elif Py_UNICODE_SIZE == 4:
-                    self._format = UCS4_TC
-            elif PY2K and typecode not in "Bc":
+            # Correct itemsize and format on Python 2
+            if PY2K:
                 self.itemsize = self.obj.itemsize
-                self._format = typecode
+                self._format = self.obj.typecode
+
+            # Recast text formats
+            fmt = self._format[0]
+            if PY2K and fmt == 'c':
+                self._format = UINT8_TC
+            elif fmt == 'u' or fmt == 'w':
+                if self.itemsize == 2:
+                    self._format = UINT16_TC
+                elif self.itemsize == 4:
+                    self._format = UINT32_TC
 
             # Adjust shape and strides based on casting
             if PY2K and self.itemsize != 1:
