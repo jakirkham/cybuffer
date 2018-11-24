@@ -163,9 +163,7 @@ cdef class cybuffer(object):
         if (PY2K or PY3K) and isinstance(self.obj, array):
             # Fix-up typecode
             typecode = self.obj.typecode
-            if typecode == "B":
-                return
-            elif PY2K and typecode == "c":
+            if typecode == "B" or (PY2K and typecode == "c"):
                 return
             elif typecode == "u":
                 if Py_UNICODE_SIZE == 2:
