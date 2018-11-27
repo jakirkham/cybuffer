@@ -7,7 +7,7 @@ cybuffer
         :target: https://pypi.python.org/pypi/cybuffer
         :alt: PyPI
 
-.. image:: https://anaconda.org/conda-forge/cybuffer/badges/version.svg
+.. image:: https://img.shields.io/conda/vn/conda-forge/cybuffer.svg
         :target: https://anaconda.org/conda-forge/cybuffer
         :alt: conda-forge
 
