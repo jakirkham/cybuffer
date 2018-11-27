@@ -60,13 +60,13 @@ if not (({"develop", "test"} & set(sys.argv)) or
     any([v.startswith("install") for v in sys.argv])):
     setup_requirements = []
 else:
-    with open("src/config.pxi", "w") as f:
+    with open("src/cybuffer/config.pxi", "w") as f:
         f.writelines([
             "DEF PY2K = " + str(sys.version_info.major == 2) + "\n",
             "DEF PY3K = " + str(sys.version_info.major == 3) + "\n"
         ])
 
-    with open("src/version.pxi", "w") as f:
+    with open("src/cybuffer/version.pxi", "w") as f:
         f.writelines([
             "__version__ = " + "\"" + str(version) + "\""
         ])
@@ -87,7 +87,7 @@ library_dirs = list(filter(
 ))
 
 headers = []
-sources = glob.glob("src/*.pxd") + glob.glob("src/*.pyx")
+sources = glob.glob("src/cybuffer/*.pxd") + glob.glob("src/cybuffer/*.pyx")
 libraries = []
 define_macros = []
 extra_compile_args = []
@@ -107,7 +107,7 @@ if "test" in sys.argv:
 
 ext_modules = [
     Extension(
-        "cybuffer",
+        "cybuffer.__init__",
         sources=sources,
         include_dirs=include_dirs,
         library_dirs=library_dirs,
@@ -130,7 +130,12 @@ setup(
     author_email="kirkhamj@janelia.hhmi.org",
     url="https://github.com/jakirkham/cybuffer",
     cmdclass=cmdclasses,
-    packages=setuptools.find_packages(exclude=["tests*"]),
+    packages=["cybuffer"],
+    package_dir={"cybuffer": "src/cybuffer"},
+    package_data={
+        "cybuffer": ["src/cybuffer/config.pxi", "src/cybuffer/*.pxd"]
+    },
+    py_modules=["_version", "versioneer"],
     include_package_data=True,
     setup_requires=setup_requirements,
     install_requires=install_requirements,
