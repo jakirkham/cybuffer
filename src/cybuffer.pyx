@@ -86,6 +86,9 @@ cdef tuple pointer_to_tuple(int n, Py_ssize_t* p):
     cdef object p_i
     cdef tuple result
 
+    if p is NULL:
+        n = 0
+
     result = cpython.tuple.PyTuple_New(n)
     for i in range(n):
         p_i = long(p[i])
