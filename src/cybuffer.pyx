@@ -249,31 +249,17 @@ cdef class cybuffer(object):
 
     @property
     def shape(self):
-        if self._shape is NULL:
-            r = tuple()
-        else:
-            r = pointer_to_tuple(self._buf.ndim, self._shape)
-        return r
+        return pointer_to_tuple(self._buf.ndim, self._shape)
 
 
     @property
     def strides(self):
-        cdef tuple r
-        if self._strides is NULL:
-            r = tuple()
-        else:
-            r = pointer_to_tuple(self._buf.ndim, self._strides)
-        return r
+        return pointer_to_tuple(self._buf.ndim, self._strides)
 
 
     @property
     def suboffsets(self):
-        cdef tuple r
-        if self._buf.suboffsets is NULL:
-            r = tuple()
-        else:
-            r = pointer_to_tuple(self._buf.ndim, self._buf.suboffsets)
-        return r
+        return pointer_to_tuple(self._buf.ndim, self._buf.suboffsets)
 
 
     def __len__(self):
